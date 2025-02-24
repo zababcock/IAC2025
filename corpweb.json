@@ -11,11 +11,11 @@
     "KeyPair": {
       "Type": "AWS::EC2::KeyPair::KeyName",
       "Default": "Iac : one",
-      "Description": "server key-pair  for the EC2 instances."
+      "Description": "server key-pair for the EC2 instances."
     },
     "YourIp": {
       "Type": "String",
-      "Description": "public IP address in CIDR notation."
+      "Description": "Public IP address in CIDR notation."
     }
   },
   "Resources": {
@@ -26,9 +26,9 @@
         "EnableDnsSupport": true,
         "EnableDnsHostnames": true,
         "Tags": [
-          { 
+          {
             "Key": "Name",
-            "Value": "EngineeringVpc" 
+            "Value": "EngineeringVpc"
           }
         ]
       }
@@ -123,62 +123,6 @@
         ]
       }
     },
-    "Web1": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "InstanceType": { "Ref": "InstanceTypeParameter" },
-        "ImageId": "ami-01cc34ab2709337aa",
-        "KeyName": { "Ref": "KeyPair" },
-        "SubnetId": { "Ref": "PublicSubnet1" },
-        "SecurityGroupIds": [ { "Ref": "WebserversSG" } ],
-        "UserData": {
-          "Fn::Base64": {
-            "Fn::Join": [
-              "",
-              [
-                "#!/bin/bash\n",
-                "yum update -y\n",
-                "yum install -y git httpd php\n",
-                "service httpd start\n",
-                "chkconfig httpd on\n",
-                "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
-              ]
-            ]
-          }
-        },
-        "Tags": [
-          { "Key": "Name", "Value": "web1" }
-        ]
-      }
-    },
-    "Web2": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "InstanceType": { "Ref": "InstanceTypeParameter" },
-        "ImageId": "ami-01cc34ab2709337aa",
-        "KeyName": { "Ref": "KeyPair" },
-        "SubnetId": { "Ref": "PublicSubnet2" },
-        "SecurityGroupIds": [ { "Ref": "WebserversSG" } ],
-        "UserData": {
-          "Fn::Base64": {
-            "Fn::Join": [
-              "",
-              [
-                "#!/bin/bash\n",
-                "yum update -y\n",
-                "yum install -y git httpd php\n",
-                "service httpd start\n",
-                "chkconfig httpd on\n",
-                "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
-              ]
-            ]
-          }
-        },
-        "Tags": [
-          { "Key": "Name", "Value": "web2" }
-        ]
-      }
-    },
     "EngineeringLB": {
       "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
       "Properties": {
@@ -219,22 +163,6 @@
             "TargetGroupArn": { "Ref": "EngineeringWebservers" }
           }
         ]
-      }
-    },
-    "Web1TargetGroupAttachment": {
-      "Type": "AWS::ElasticLoadBalancingV2::TargetGroupAttachment",
-      "Properties": {
-        "TargetGroupArn": { "Ref": "EngineeringWebservers" },
-        "TargetId": { "Ref": "Web1" },
-        "Port": 80
-      }
-    },
-    "Web2TargetGroupAttachment": {
-      "Type": "AWS::ElasticLoadBalancingV2::TargetGroupAttachment",
-      "Properties": {
-        "TargetGroupArn": { "Ref": "EngineeringWebservers" },
-        "TargetId": { "Ref": "Web2" },
-        "Port": 80
       }
     }
   },
