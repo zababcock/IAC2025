@@ -56,73 +56,73 @@
       }
     },
     "InternetGateway": {
-        "Type": "AWS::EC2::InternetGateway",
-        "Properties": {
-          "Tags": [
-            { "Key": "Name", "Value": "EngineeringIGW" }
-          ]
-        }
-      },
-      "VPCGatewayAttachment": {
-        "Type": "AWS::EC2::VPCGatewayAttachment",
-        "Properties": {
-          "VpcId": { "Ref": "EngineeringVpc" },
-          "InternetGatewayId": { "Ref": "InternetGateway" }
-        }
-      },
-      "PublicRouteTable": {
-        "Type": "AWS::EC2::RouteTable",
-        "Properties": {
-          "VpcId": { "Ref": "EngineeringVpc" },
-          "Tags": [
-            { "Key": "Name", "Value": "PublicRouteTable" }
-          ]
-        }
-      },
-      "PublicRoute": {
-        "Type": "AWS::EC2::Route",
-        "DependsOn": "VPCGatewayAttachment",
-        "Properties": {
-          "RouteTableId": { "Ref": "PublicRouteTable" },
-          "DestinationCidrBlock": "0.0.0.0/0",
-          "GatewayId": { "Ref": "InternetGateway" }
-        }
-      },
-      "Subnet1RouteTableAssociation": {
-        "Type": "AWS::EC2::SubnetRouteTableAssociation",
-        "Properties": {
-          "SubnetId": { "Ref": "PublicSubnet1" },
-          "RouteTableId": { "Ref": "PublicRouteTable" }
-        }
-      },
-      "Subnet2RouteTableAssociation": {
-        "Type": "AWS::EC2::SubnetRouteTableAssociation",
-        "Properties": {
-          "SubnetId": { "Ref": "PublicSubnet2" },
-          "RouteTableId": { "Ref": "PublicRouteTable" }
-        }
-      },
-      "WebserversSG": {
-        "Type": "AWS::EC2::SecurityGroup",
-        "Properties": {
-          "GroupDescription": "Allow inbound traffic",
-          "VpcId": { "Ref": "EngineeringVpc" },
-          "SecurityGroupIngress": [
-            {
-              "IpProtocol": "tcp",
-              "FromPort": 22,
-              "ToPort": 22,
-              "CidrIp": { "Ref": "YourIp" }
-            },
-            {
-              "IpProtocol": "tcp",
-              "FromPort": 80,
-              "ToPort": 80,
-              "CidrIp": "0.0.0.0/0"
-            }
-          ]
-        }
-      },
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          { "Key": "Name", "Value": "EngineeringIGW" }
+        ]
+      }
+    },
+    "VPCGatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "InternetGatewayId": { "Ref": "InternetGateway" }
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "Tags": [
+          { "Key": "Name", "Value": "PublicRouteTable" }
+        ]
+      }
+    },
+    "PublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "VPCGatewayAttachment",
+      "Properties": {
+        "RouteTableId": { "Ref": "PublicRouteTable" },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": { "Ref": "InternetGateway" }
+      }
+    },
+    "Subnet1RouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "PublicSubnet1" },
+        "RouteTableId": { "Ref": "PublicRouteTable" }
+      }
+    },
+    "Subnet2RouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "PublicSubnet2" },
+        "RouteTableId": { "Ref": "PublicRouteTable" }
+      }
+    },
+    "WebserversSG": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow inbound traffic",
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "CidrIp": { "Ref": "YourIp" }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
     "Web1": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
@@ -187,9 +187,7 @@
         "SecurityGroups": [{ "Ref": "WebserversSG" }],
         "Scheme": "internet-facing",
         "Tags": [
-          { "Key": "Name", "Value":
-
- "EngineeringLB" }
+          { "Key": "Name", "Value": "EngineeringLB" }
         ]
       }
     },
@@ -208,36 +206,36 @@
           { "Key": "Name", "Value": "EngineeringWebservers" }
         ]
       }
-    }
-  },
-  "EngineeringListener": {
-    "Type": "AWS::ElasticLoadBalancingV2::Listener",
-    "Properties": {
-      "LoadBalancerArn": { "Ref": "EngineeringLB" },
-      "Port": 80,
-      "Protocol": "HTTP",
-      "DefaultActions": [
-        {
-          "Type": "forward",
-          "TargetGroupArn": { "Ref": "EngineeringWebservers" }
-        }
-      ]
-    }
-  },
-  "Web1TargetGroupAttachment": {
-    "Type": "AWS::ElasticLoadBalancingV2::TargetGroupAttachment",
-    "Properties": {
-      "TargetGroupArn": { "Ref": "EngineeringWebservers" },
-      "TargetId": { "Ref": "Web1" },
-      "Port": 80
-    }
-  },
-  "Web2TargetGroupAttachment": {
-    "Type": "AWS::ElasticLoadBalancingV2::TargetGroupAttachment",
-    "Properties": {
-      "TargetGroupArn": { "Ref": "EngineeringWebservers" },
-      "TargetId": { "Ref": "Web2" },
-      "Port": 80
+    },
+    "EngineeringListener": {
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+      "Properties": {
+        "LoadBalancerArn": { "Ref": "EngineeringLB" },
+        "Port": 80,
+        "Protocol": "HTTP",
+        "DefaultActions": [
+          {
+            "Type": "forward",
+            "TargetGroupArn": { "Ref": "EngineeringWebservers" }
+          }
+        ]
+      }
+    },
+    "Web1TargetGroupAttachment": {
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroupAttachment",
+      "Properties": {
+        "TargetGroupArn": { "Ref": "EngineeringWebservers" },
+        "TargetId": { "Ref": "Web1" },
+        "Port": 80
+      }
+    },
+    "Web2TargetGroupAttachment": {
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroupAttachment",
+      "Properties": {
+        "TargetGroupArn": { "Ref": "EngineeringWebservers" },
+        "TargetId": { "Ref": "Web2" },
+        "Port": 80
+      }
     }
   },
   "Outputs": {
