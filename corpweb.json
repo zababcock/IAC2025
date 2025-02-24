@@ -239,12 +239,11 @@
       "TargetId": { "Ref": "Web2" },
       "Port": 80
     }
+  },
+  "Outputs": {
+    "WebUrl": {
+      "Description": "URL of the load balancer",
+      "Value": { "Fn::GetAtt": [ "EngineeringLB", "DNSName" ] }
+    }
   }
-},
-"Outputs": {
-  "WebUrl": {
-    "Description": "URL of the load balancer",
-    "Value": { "Fn::GetAtt": [ "EngineeringLB", "DNSName" ] }
-  }
-}
 }
