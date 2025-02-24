@@ -155,7 +155,7 @@
         "ImageId": "ami-01cc34ab2709337aa",
         "KeyName": { "Ref": "KeyPair" },
         "SubnetId": { "Ref": "PublicSubnet1" },
-        "SecurityGroups": [{ "Ref": "WebserversSG" }],
+        "SecurityGroupIds": [{ "Ref": "WebserversSG" }],
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
@@ -181,7 +181,7 @@
         "ImageId": "ami-01cc34ab2709337aa",
         "KeyName": { "Ref": "KeyPair" },
         "SubnetId": { "Ref": "PublicSubnet2" },
-        "SecurityGroups": [{ "Ref": "WebserversSG" }],
+        "SecurityGroupIds": [{ "Ref": "WebserversSG" }],
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
