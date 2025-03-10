@@ -28,7 +28,83 @@
         "Tags": [{ "Key": "Name", "Value": "EngineeringVpc" }]
       }
     },
-    
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [{ "Key": "Name", "Value": "EngineeringIGW" }]
+      }
+    },
+    "VPCGatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "InternetGatewayId": { "Ref": "InternetGateway" }
+      }
+    },
+    "PublicSubnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "CidrBlock": "10.0.0.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [{ "Key": "Name", "Value": "PublicSubnet1" }]
+      }
+    },
+    "PublicSubnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "CidrBlock": "10.0.1.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [{ "Key": "Name", "Value": "PublicSubnet2" }]
+      }
+    },
+    "PrivateSubnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "CidrBlock": "10.0.2.0/24",
+        "Tags": [{ "Key": "Name", "Value": "PrivateSubnet1" }]
+      }
+    },
+    "PrivateSubnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "CidrBlock": "10.0.3.0/24",
+        "Tags": [{ "Key": "Name", "Value": "PrivateSubnet2" }]
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "Tags": [{ "Key": "Name", "Value": "PublicRouteTable" }]
+      }
+    },
+    "PublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "VPCGatewayAttachment",
+      "Properties": {
+        "RouteTableId": { "Ref": "PublicRouteTable" },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": { "Ref": "InternetGateway" }
+      }
+    },
+    "Subnet1RouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "PublicSubnet1" },
+        "RouteTableId": { "Ref": "PublicRouteTable" }
+      }
+    },
+    "Subnet2RouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": { "Ref": "PublicSubnet2" },
+        "RouteTableId": { "Ref": "PublicRouteTable" }
+      }
+    },
     "WebserversSG": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
@@ -44,76 +120,6 @@
         ]
       }
     },
-
-    "RDSSecurityGroup": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "Allow MySQL traffic from web servers",
-        "VpcId": { "Ref": "EngineeringVpc" },
-        "SecurityGroupIngress": [
-          {
-            "IpProtocol": "tcp",
-            "FromPort": 3306,
-            "ToPort": 3306,
-            "SourceSecurityGroupId": { "Ref": "WebserversSG" }
-          }
-        ]
-      }
-    },
-
-    "InternetGateway": {
-      "Type": "AWS::EC2::InternetGateway",
-      "Properties": {
-        "Tags": [{ "Key": "Name", "Value": "EngineeringIGW" }]
-      }
-    },
-
-    "VPCGatewayAttachment": {
-      "Type": "AWS::EC2::VPCGatewayAttachment",
-      "Properties": {
-        "VpcId": { "Ref": "EngineeringVpc" },
-        "InternetGatewayId": { "Ref": "InternetGateway" }
-      }
-    },
-
-    "PublicSubnet1": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "VpcId": { "Ref": "EngineeringVpc" },
-        "CidrBlock": "10.0.0.0/24",
-        "MapPublicIpOnLaunch": true,
-        "Tags": [{ "Key": "Name", "Value": "PublicSubnet1" }]
-      }
-    },
-
-    "PublicSubnet2": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "VpcId": { "Ref": "EngineeringVpc" },
-        "CidrBlock": "10.0.1.0/24",
-        "MapPublicIpOnLaunch": true,
-        "Tags": [{ "Key": "Name", "Value": "PublicSubnet2" }]
-      }
-    },
-
-    "PrivateSubnet1": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "VpcId": { "Ref": "EngineeringVpc" },
-        "CidrBlock": "10.0.2.0/24",
-        "Tags": [{ "Key": "Name", "Value": "PrivateSubnet1" }]
-      }
-    },
-
-    "PrivateSubnet2": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "VpcId": { "Ref": "EngineeringVpc" },
-        "CidrBlock": "10.0.3.0/24",
-        "Tags": [{ "Key": "Name", "Value": "PrivateSubnet2" }]
-      }
-    },
-
     "Web1": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
@@ -125,7 +131,6 @@
         "Tags": [{ "Key": "Name", "Value": "web1" }]
       }
     },
-
     "Web2": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
@@ -137,7 +142,6 @@
         "Tags": [{ "Key": "Name", "Value": "web2" }]
       }
     },
-
     "RDSSubnetGroup": {
       "Type": "AWS::RDS::DBSubnetGroup",
       "Properties": {
@@ -148,7 +152,6 @@
         ]
       }
     },
-
     "RDSInstance": {
       "Type": "AWS::RDS::DBInstance",
       "Properties": {
@@ -162,6 +165,21 @@
         "DBName": "mydb",
         "DBSubnetGroupName": { "Ref": "RDSSubnetGroup" },
         "VPCSecurityGroups": [{ "Ref": "RDSSecurityGroup" }]
+      }
+    },
+    "RDSSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow MySQL traffic from web servers",
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 3306,
+            "ToPort": 3306,
+            "SourceSecurityGroupId": { "Ref": "WebserversSG" }
+          }
+        ]
       }
     }
   },
