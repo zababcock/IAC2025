@@ -1,5 +1,5 @@
 aws cloudformation deploy \
-  --template-file corpweb.json \
+  --template-file [filename.json] \ 
   --stack-name WebserversDev \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameter-overrides KeyPair="KEY : PAIR HERE" YourIp=[YOUR IP HERE]
