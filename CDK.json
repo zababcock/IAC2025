@@ -28,65 +28,23 @@
         "Tags": [{ "Key": "Name", "Value": "EngineeringVpc" }]
       }
     },
-    "PublicSubnet1": {
-      "Type": "AWS::EC2::Subnet",
+    
+    "WebserversSG": {
+      "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
+        "GroupDescription": "Allow inbound traffic on port 80",
         "VpcId": { "Ref": "EngineeringVpc" },
-        "CidrBlock": "10.0.0.0/24",
-        "MapPublicIpOnLaunch": true,
-        "Tags": [{ "Key": "Name", "Value": "PublicSubnet1" }]
-      }
-    },
-    "PublicSubnet2": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "VpcId": { "Ref": "EngineeringVpc" },
-        "CidrBlock": "10.0.1.0/24",
-        "MapPublicIpOnLaunch": true,
-        "Tags": [{ "Key": "Name", "Value": "PublicSubnet2" }]
-      }
-    },
-    "PrivateSubnet1": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "VpcId": { "Ref": "EngineeringVpc" },
-        "CidrBlock": "10.0.2.0/24",
-        "Tags": [{ "Key": "Name", "Value": "PrivateSubnet1" }]
-      }
-    },
-    "PrivateSubnet2": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "VpcId": { "Ref": "EngineeringVpc" },
-        "CidrBlock": "10.0.3.0/24",
-        "Tags": [{ "Key": "Name", "Value": "PrivateSubnet2" }]
-      }
-    },
-    "RDSSubnetGroup": {
-      "Type": "AWS::RDS::DBSubnetGroup",
-      "Properties": {
-        "DBSubnetGroupDescription": "Subnet group for RDS instance",
-        "SubnetIds": [
-          { "Ref": "PrivateSubnet1" },
-          { "Ref": "PrivateSubnet2" }
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          }
         ]
       }
     },
-    "RDSInstance": {
-      "Type": "AWS::RDS::DBInstance",
-      "Properties": {
-        "DBInstanceClass": "db.t3.micro",
-        "Engine": "mysql",
-        "EngineVersion": "8.0.35",
-        "LicenseModel": "general-public-license",
-        "AllocatedStorage": "20",
-        "MasterUsername": "admin",
-        "MasterUserPassword": "admin123",
-        "DBName": "mydb",
-        "DBSubnetGroupName": { "Ref": "RDSSubnetGroup" },
-        "VPCSecurityGroups": [{ "Ref": "RDSSecurityGroup" }]
-      }
-    },
+
     "RDSSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
@@ -100,6 +58,110 @@
             "SourceSecurityGroupId": { "Ref": "WebserversSG" }
           }
         ]
+      }
+    },
+
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [{ "Key": "Name", "Value": "EngineeringIGW" }]
+      }
+    },
+
+    "VPCGatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "InternetGatewayId": { "Ref": "InternetGateway" }
+      }
+    },
+
+    "PublicSubnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "CidrBlock": "10.0.0.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [{ "Key": "Name", "Value": "PublicSubnet1" }]
+      }
+    },
+
+    "PublicSubnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "CidrBlock": "10.0.1.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [{ "Key": "Name", "Value": "PublicSubnet2" }]
+      }
+    },
+
+    "PrivateSubnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "CidrBlock": "10.0.2.0/24",
+        "Tags": [{ "Key": "Name", "Value": "PrivateSubnet1" }]
+      }
+    },
+
+    "PrivateSubnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "CidrBlock": "10.0.3.0/24",
+        "Tags": [{ "Key": "Name", "Value": "PrivateSubnet2" }]
+      }
+    },
+
+    "Web1": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": { "Ref": "InstanceTypeParameter" },
+        "ImageId": "ami-01cc34ab2709337aa",
+        "KeyName": { "Ref": "KeyPair" },
+        "SubnetId": { "Ref": "PublicSubnet1" },
+        "SecurityGroupIds": [{ "Ref": "WebserversSG" }],
+        "Tags": [{ "Key": "Name", "Value": "web1" }]
+      }
+    },
+
+    "Web2": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": { "Ref": "InstanceTypeParameter" },
+        "ImageId": "ami-01cc34ab2709337aa",
+        "KeyName": { "Ref": "KeyPair" },
+        "SubnetId": { "Ref": "PublicSubnet2" },
+        "SecurityGroupIds": [{ "Ref": "WebserversSG" }],
+        "Tags": [{ "Key": "Name", "Value": "web2" }]
+      }
+    },
+
+    "RDSSubnetGroup": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "Subnet group for RDS instance",
+        "SubnetIds": [
+          { "Ref": "PrivateSubnet1" },
+          { "Ref": "PrivateSubnet2" }
+        ]
+      }
+    },
+
+    "RDSInstance": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "DBInstanceClass": "db.t3.micro",
+        "Engine": "mysql",
+        "EngineVersion": "8.0.35",
+        "LicenseModel": "general-public-license",
+        "AllocatedStorage": "20",
+        "MasterUsername": "admin",
+        "MasterUserPassword": "admin123",
+        "DBName": "mydb",
+        "DBSubnetGroupName": { "Ref": "RDSSubnetGroup" },
+        "VPCSecurityGroups": [{ "Ref": "RDSSecurityGroup" }]
       }
     }
   },
